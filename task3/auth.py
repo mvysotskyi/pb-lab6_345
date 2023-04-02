@@ -79,6 +79,15 @@ class Authenticator:
             return self.users[username].is_logged_in
         return False
 
+    def logout(self, username):
+        """
+        Log the user out.
+        """
+        if username in self.users:
+            self.users[username].is_logged_in = False
+            return True
+        return False
+
 class Authorizor:
     """
     Manages user permissions.

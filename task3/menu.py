@@ -14,7 +14,7 @@ class Menu:
     """
     Display a menu and respond to choices when run.
     """
-    def __init__(self):
+    def __init__(self, authorizor, authenticator):
         self.notebook = Notebook()
         self.choices = {
             "1": (self.show_notes, "read"),
@@ -23,6 +23,8 @@ class Menu:
             "4": (self.modify_note, "edit"),
             "5": (self.quit, None)
         }
+        self.authorizor = authorizor
+        self.authenticator = authenticator
 
     def display_menu(self):
         """
@@ -34,11 +36,11 @@ class Menu:
         2. Search Notes
         3. Add Note
         4. Modify Note
-        5. Quit
+        5. Log out
         """
         )
 
-    def run(self, user, authorizor):
+    def run(self, user):
         """
         Display the menu and respond to choices.
         """
@@ -46,6 +48,8 @@ class Menu:
             print(f"Welcome {user.username}!")
         else:
             raise NotLoggedInError(user.username, user)
+
+        self.username = user.username
 
         while True:
             self.display_menu()
@@ -55,8 +59,9 @@ class Menu:
             if action:
                 if action[1] is None:
                     action[0]()
+                    break
                 try:
-                    if authorizor.check_permission(action[1], user.username):
+                    if self.authorizor.check_permission(action[1], user.username):
                         action[0]()
                 except NotPermittedError:
                     print(f"Permission denied: {action[1]}")
@@ -105,7 +110,7 @@ class Menu:
         Quit the program.
         """
         print("Thank you for using your notebook today.")
-        sys.exit(0)
+        self.authenticator.logout(self.username)
 
 if __name__ == "__main__":
     print("Welcome to the Notebook.")
@@ -124,11 +129,11 @@ if __name__ == "__main__":
     authorizor.permit_user("create", "admin")
     authorizor.permit_user("edit", "admin")
 
-    username = auth_account(authenticator, authorizor)
+    while True:
+        username = auth_account(authenticator, authorizor)
+        menu = Menu(authorizor, authenticator)
 
-    menu = Menu()
-
-    try:
-        menu.run(authenticator.users[username], authorizor)
-    except NotLoggedInError:
-        print("Please log in to continue.")
+        try:
+            menu.run(authenticator.users[username])
+        except NotLoggedInError:
+            print("Please log in to continue.")

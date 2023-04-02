@@ -8,9 +8,8 @@ def auth_account(authenticator, authorizor):
     """
     Create an account, log in, and add permissions.
     """
-    print("Type 1 to create an account, 2 to log in, 3 to quit")
-
     while True:
+        print("Type 1 to create an account, 2 to log in, 3 to quit")
         choice = input("Choice: ")
 
         if choice == "1":
@@ -20,8 +19,10 @@ def auth_account(authenticator, authorizor):
                 authenticator.add_user(username, password)
             except UsernameAlreadyExists as exc:
                 print(f"Username {exc.username} already exists")
+                continue
             except PasswordTooShort:
                 print("Password too short")
+                continue
 
             authorizor.permit_user("read", username)
 
