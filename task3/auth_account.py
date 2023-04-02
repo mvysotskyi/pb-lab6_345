@@ -32,9 +32,11 @@ def auth_account(authenticator, authorizor):
                 if authenticator.login("admin", admin_password):
                     authorizor.permit_user("create", username)
                     authorizor.permit_user("edit", username)
+
+                    print("Account created and permissions granted.")
             except InvalidPassword:
-                print("Invalid password for admin")
-                print("You can only read notes")
+                print("Invalid password for admin.")
+                print("You can only read notes.")
 
             authenticator.login(username, password)
             return username
